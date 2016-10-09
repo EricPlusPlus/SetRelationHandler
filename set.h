@@ -29,8 +29,8 @@ public:
 	std::string selectRelation();
 	Relation getRelation(std::string key) { return relations[key]; }
 
-	Set operator|(const Set& a);
-	Set operator^(const Set&a);
+	Set operator|(const Set& a); //Union with another set
+	Set operator^(const Set& a); //Intersection of two sets
 };
 
 
