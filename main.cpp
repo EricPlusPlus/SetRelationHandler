@@ -9,8 +9,8 @@
 
 //todo regex expressions for set-builder notation.
 void pause() {
-	system("pause");
-	system("cls");
+	//system("pause");
+	//system("cls");
 }
 
 #include "relation.h"
@@ -44,7 +44,7 @@ void addSet(std::map<char, Set> &sets) {
 	sets[i] = s;
 
 	std::cin.clear();
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	//std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 char selectSet(std::map<char, Set> &sets) {
 	char choice;
@@ -64,23 +64,28 @@ void displaySetOptions() {
 	std::cout << "1 - Add a Relation\n";
 	std::cout << "2 - Remove a Relation\n";
 	std::cout << "3 - View Relation options\n";
-	std::cout << "4 - Union with another set\n";
-	std::cout << "5 = Find intersection with another set\n";
-	std::cout << "0 - Exit\n\n";
+	std::cout << "4 - Combine a Relation n times\n";
+	std::cout << "5 - Union with another set\n";
+	std::cout << "6 = Find intersection with another set\n";
+	std::cout << "0 - Back\n\n";
 }
 void displayRelationOptions(std::string key) {
 	std::cout << "Choose one of the following options:\n";
 	std::cout << "1 - View Properties\n";
 	std::cout << "2 - Display " << key << "^2\n";
-	std::cout << "3 - Print the matrix for a function\n";
-	std::cout << "0 - Exit\n\n";
+	std::cout << "3 - Print the matrix\n";
+	std::cout << "4 - Print the relation of the transitive closure\n";
+	std::cout << "5 - Print the matrix for the transitive closure\n";
+	std::cout << "6 - Print the matrix using warshaws algorithm\n";
+	std::cout << "7 - Print the ordered pairs of the relation\n";
+	std::cout << "0 - Back\n\n";
 }
 
 void handleRelationOption(Relation &rel, std::string key) {
 	int c = 1;
 
 	while (c >= 0) {
-		std::cout << "Relation: " << key << std::endl << std::endl;
+		std::cout << "Relation: " << rel.getName() << std::endl << std::endl;
 
 		std::cin.clear();
 		displayRelationOptions(key);
@@ -91,10 +96,25 @@ void handleRelationOption(Relation &rel, std::string key) {
 			rel.displayProperties();
 			break;
 		case 2:
-			rel.printRelation(rel.r_to_the_n_power(), key);
+			rel.printRelation(to_the_n_power(rel, 2), key);
+			to_the_n_power(rel, 2).addToSet();
 			break;
 		case 3:
 			rel.printMatrix(std::cout);
+			break;
+		case 4:
+			getTransitiveClosure(rel).printRelation(std::cout);
+			getTransitiveClosure(rel).addToSet();
+			break;
+		case 5:
+			rel.printMatrix(getTransitiveClosure(rel), std::cout);
+			getTransitiveClosure(rel).addToSet();
+			break;
+		case 6:
+			warshawAlgorithm(rel).addToSet();
+			break;
+		case 7:
+			rel.printRelation(std::cout);
 			break;
 		case 0:
 			return;
@@ -102,12 +122,12 @@ void handleRelationOption(Relation &rel, std::string key) {
 	}
 }
 void handleSetOption(Set &set, char key) {
-	int c = 1;
+	int c = 1;	
 
 	while (c >= 0) {
 		std::cout << "Set: " << key << " = ";
 		set.print();
-		std::cout << std::endl << std::endl;;
+		std::cout << std::endl << std::endl;
 
 		std::cin.clear();
 		displaySetOptions();
@@ -117,7 +137,8 @@ void handleSetOption(Set &set, char key) {
 		std::string key;
 		switch (c) {
 		case 1:
-			set.addRelation();
+			set.addNewRelation();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			break;
 		case 2:
 			key = set.selectRelation();
@@ -125,10 +146,7 @@ void handleSetOption(Set &set, char key) {
 			break;
 		case 3:
 			key = set.selectRelation();
-			handleRelationOption(set.getRelation(key), key);
-			break;
-
-			set.viewRelation(set.selectRelation());
+			handleRelationOption(*set.getRelation(key), key);
 			break;
 		case 4:
 			set.combineRelation(set.selectRelation());
@@ -183,8 +201,6 @@ int main() {
 		case 0:
 			return 0;
 		}
-
-		system("cls");
 	}
 
 	return 0;

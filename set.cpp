@@ -27,7 +27,7 @@ Set Set::operator^(const Set& a) {
 	return ans;
 }
 
-Set::Set(char c) {
+Set::Set(char c):identifier(c) {
 	int num;
 
 	std::cout << "Enter the values for the set.\nClose the set with a '}' when finished." << std::endl;
@@ -51,12 +51,11 @@ Set::Set(char c) {
 	domain.second = *it;
 }
 
-void Set::addRelation() {
+void Set::addNewRelation() {
 	std::string ans;
 	std::string r_name;
 
 	std::cout << "Is your relation in a file? (y/n): ";
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	std::cin >> ans;
 
 	std::cout << "Enter a name for this relation: ";
@@ -67,7 +66,7 @@ void Set::addRelation() {
 		std::cout << "Enter the filename: ";
 		std::cin >> filename;
 
-		Relation R(filename, r_name);
+		Relation R(filename, r_name, domain, this);
 		R.updateProperties(domain);
 
 		if (!R.empty()) {
@@ -75,7 +74,7 @@ void Set::addRelation() {
 		}
 	}
 	else {
-		Relation R(r_name);
+		Relation R(r_name, domain, this);
 
 		std::cout << "Enter the pairs for the relation.\nEnter two numbers per line seperated by a space.\nType Done when finished\n";
 
@@ -84,10 +83,17 @@ void Set::addRelation() {
 			R.addPair(a, b);
 		}
 
+		std::cin.clear(); //flush buffer
 		R.updateProperties(domain);
 		relations[r_name] = R;
 	}
 }
+void Set::addExistingRelation(Relation &R) {
+	std::string key = R.getName();
+
+	relations[key] = R;
+}
+
 void Set::removeRelation(std::string key) {
 	if (relations.find(key) != relations.end()) {
 		relations.erase(key);
@@ -151,13 +157,14 @@ void Set::combineRelation(std::string key) {
 	if (relations.find(key) != relations.end()) {
 		auto R = relations[key];
 		
-		R = R.r_to_the_n_power(n);
-
+		R = to_the_n_power(R, n);
+		R.updateName(R.getName() + "^" + std::to_string(n));
 		std::cout << key << "^" << n << " = ";
 		R.printRelation(std::cout);
 		std::cout << std::endl;
 		
 		std::string c;
+		R.addToSet();
 		std::cout << "Save to file? (y/n): ";
 		std::cin >> c;
 
